@@ -1,0 +1,7 @@
+fastapi==0.111.0
+langchain==0.1.17
+azure-identity==1.16.0
+langchain-openai==0.1.6
+python-dotenv==1.0.1
+langchainhub==0.1.15
+langchain-azure-dynamic-sessions==0.1.0rc0
