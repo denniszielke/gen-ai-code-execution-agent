@@ -69,6 +69,6 @@ IMAGE_NAME="${AZURE_CONTAINER_REGISTRY_NAME}.azurecr.io/$SERVICE_NAME:latest"
 URI=$(az deployment group create -g $RESOURCE_GROUP -f ./infra/app/web.bicep \
           -p name=$SERVICE_NAME -p location=$LOCATION -p containerAppsEnvironmentName=$ENVIRONMENT_NAME \
           -p containerRegistryName=$AZURE_CONTAINER_REGISTRY_NAME -p applicationInsightsName=$APPINSIGHTS_NAME -p serviceName=$SERVICE_NAME \
-          -p openaiName=$OPENAI_NAME -p dynamcSessionsName=$POOL_MANAGEMENT_NAME -p poolManagementEndpoint=$POOL_MANAGEMENT_ENDPOINT -p identityName=$IDENTITY_NAME -p imageName=$IMAGE_NAME -p exists=$EXISTS --query properties.outputs.uri.value)
+          -p openaiName=$OPENAI_NAME -p poolManagementEndpoint=$POOL_MANAGEMENT_ENDPOINT -p identityName=$IDENTITY_NAME -p imageName=$IMAGE_NAME --query properties.outputs.uri.value)
 
 echo "deployment uri: $URI"

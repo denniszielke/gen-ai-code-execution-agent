@@ -13,16 +13,13 @@ param resourceGroupName string = ''
 param containerAppsEnvironmentName string = ''
 param containerRegistryName string = ''
 param openaiName string = ''
-param apiContainerAppName string = 'web'
 param applicationInsightsDashboardName string = ''
 param applicationInsightsName string = ''
 param logAnalyticsName string = ''
 
-param webExits bool = false
-
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
-var tags = { 'azd-env-name': environmentName }
+var tags = { 'azd-env-name': environmentName, 'app': 'ai-agents' }
 
 param completionDeploymentModelName string = 'gpt-35-turbo'
 param completionModelName string = 'gpt-35-turbo'
@@ -67,6 +64,9 @@ module containerApps './core/host/container-apps.bicep' = {
     containerRegistryName: !empty(containerRegistryName) ? containerRegistryName : '${abbrs.containerRegistryRegistries}${resourceToken}'
     location: location
     logAnalyticsWorkspaceName: monitoring.outputs.logAnalyticsWorkspaceName
+    identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-agents'
+    openaiName: openai.outputs.openaiName
+    dynamcSessionsName: dynamicSessions.outputs.name
   }
 }
 
@@ -77,29 +77,6 @@ module dynamicSessions './core/host/dynamic-sessions.bicep' = {
     name: 'sessions'
     location: location
     tags: tags
-  }
-}
-
-// Phase 1 Container App
-module web './app/web.bicep' = {
-  name: 'web'
-  scope: resourceGroup
-  params: {
-    name: !empty(apiContainerAppName) ? apiContainerAppName : '${abbrs.appContainerApps}api-${resourceToken}'
-    location: location
-    tags: tags
-    imageName: ''
-    identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-agents'
-    applicationInsightsName: monitoring.outputs.applicationInsightsName
-    containerAppsEnvironmentName: containerApps.outputs.environmentName
-    containerRegistryName: containerApps.outputs.registryName
-    openaiName: openai.outputs.openaiName
-    openaiApiVersion: openaiApiVersion
-    openaiEndpoint: openai.outputs.openaiEndpoint
-    completionDeploymentName: completionDeploymentModelName
-    exists: webExits
-    dynamcSessionsName: dynamicSessions.outputs.name
-    poolManagementEndpoint: dynamicSessions.outputs.poolManagementEndpoint
   }
 }
 

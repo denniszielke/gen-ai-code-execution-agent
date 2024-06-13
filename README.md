@@ -21,3 +21,10 @@ echo "building and deploying the agent for phase 1"
 bash ./azd-hooks/deploy.sh web $AZURE_ENV_NAME
 
 ```
+
+## Questions
+
+look into /mnt/data/phase3_facts.json which contains a list of facts about movies. Based on that list about all the facts you have about the movie with the name "Galactic Adventure" write up a short text of max 500 characters what you know about the movie?
+
+
+python -m streamlit run app.py --server.port=8000

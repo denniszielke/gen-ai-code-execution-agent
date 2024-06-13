@@ -6,7 +6,6 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import streamlit as st
 from langchain import agents
 from langchain_core.prompts import PromptTemplate
-from langchain_core.tools import tool
 from langchain_azure_dynamic_sessions import SessionsPythonREPLTool
 from langchain_openai import AzureChatOpenAI
 from langchain.agents import AgentExecutor, create_react_agent, load_tools
@@ -16,7 +15,7 @@ from langchain_community.callbacks.streamlit import (
 
 dotenv.load_dotenv()
 
-st.title("💬 AI file manipluation agent")
+st.title("💬 AI Document manipluation agent")
 st.caption("🚀 A Streamlit chatbot powered by Langchain, Azure OpenAI and Azure Container Apps")
 
 llm: AzureChatOpenAI = None
@@ -44,27 +43,11 @@ else:
 
 pool_management_endpoint = os.getenv("POOL_MANAGEMENT_ENDPOINT")
 repl = SessionsPythonREPLTool(pool_management_endpoint=pool_management_endpoint)
-
-@tool
-def download_file(filepath: str) -> str:
-    "Download a file from the given path to the user and return the file path"
-    filepath = filepath.replace("\n", "")
-    filepath = filepath.replace("\"", "")
-    filepath = filepath.replace(" ", "")
-    filepath = filepath.replace(" ", "")
-    filename = os.path.basename(filepath)
-    print("Downloading file:-", filename + "-")
-    f = repl.download_file(remote_file_path=filename, local_file_path=filename)
-    
-    st.download_button("Download file", f, file_name=filename)
-    return "Sending file: " + filename 
-    
-
-tools = [repl, download_file]
+tools = [repl]
+# tools = load_tools(["ddg-search"])
 
 if 'file_path' not in st.session_state:
     st.session_state['file_path'] = 'No file available'
-
 
 promptString = """Answer the following questions as best you can. You have access to the following tools:
 
@@ -72,15 +55,11 @@ promptString = """Answer the following questions as best you can. You have acces
 
 Use the following format:
 
-Question: the original input question you must answer
+Question: the input question you must answer
 
 Thought: you should always think about what to do
 
-Action: the action to take, can be one of [{tool_names}]
-If there is a reference to a file use the following file in that location: {file_path}
-Your work directory for all file operations is /mnt/data/
-Only use the download file tool if the user explicitly asks to get the file itself. Do not read the contents of the file to the user.
-After the download_file tool has been used do not read the file itself and STOP doing any further actions.
+Action: the action to take, should be one of [{tool_names}]
 
 Action Input: the input to the action
 
@@ -88,9 +67,10 @@ Observation: the result of the action
 
 ... (this Thought/Action/Action Input/Observation can repeat N times)
 
-STOP if you have observed the answer to the original input question
-
 Thought: I now know the final answer
+
+If there is a reference to a file use the following file in that location: {file_path}
+Your work directory for all file operations is /mnt/data/
 
 Final Answer: the final answer to the original input question
 
@@ -111,7 +91,7 @@ uploaded_file = st.file_uploader("Choose a file")
 
 if uploaded_file is not None:
     buffer = StringIO(uploaded_file.getvalue().decode("utf-8"))
-    st.write("Uploaded file: ", uploaded_file.name)
+    # st.write(buffer)
 
     repl.upload_file(data=buffer, remote_file_path=uploaded_file.name)
     st.session_state['file_path'] = '/mnt/data/' + uploaded_file.name
