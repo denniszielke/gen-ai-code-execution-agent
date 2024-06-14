@@ -42,11 +42,18 @@ bash ./azd-hooks/deploy.sh web $AZURE_ENV_NAME
 
 ```
 
-## Questions
+## Run the app locally
 
-look into /mnt/data/phase3_facts.json which contains a list of facts about movies. Based on that list about all the facts you have about the movie with the name "Galactic Adventure" write up a short text of max 500 characters what you know about the movie?
+Navigate to the folder */src/web*.
 
+```
 
+cd /src/web
+
+echo "installing python packages"
+pip install -r requirements.txt
+
+echo "starting app"
 python -m streamlit run app.py --server.port=8000
 
-Create an in-game screenshot of Guybrush Threepwood using his smartphone relaxing in a lounger between two palm trees, on a small island on the side is a roboter which is programming on a laptop with the other hand, wide shot, shallow depth of field, in the style of Monkey Island. The robot is listening to Guybrush and is making changes to large excel files according to his ideas. Make the resolion very low 200 pixels height and 400 pixels width.
+```
