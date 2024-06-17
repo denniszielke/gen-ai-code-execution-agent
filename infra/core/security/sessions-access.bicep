@@ -1,6 +1,7 @@
 param dynamicSessionsName string
 param principalId string
 
+// Azure ContainerApps Session Executor
 var sessionExecutor = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '0fb8eba5-a2bb-4abe-b1c1-49dfad359bb0')
 
 resource sessionPermissions 'Microsoft.Authorization/roleAssignments@2022-04-01' = {

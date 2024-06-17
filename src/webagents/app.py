@@ -98,7 +98,6 @@ if uploaded_file is not None:
 
 if prompt := st.chat_input():
 
-
     st.chat_message("user").write(prompt)
 
     with st.chat_message("assistant"):

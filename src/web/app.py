@@ -27,6 +27,7 @@ def get_session_id() -> str:
 if "session_id" not in st.session_state:
     st.session_state["session_id"] = get_session_id()
     print("started new session: " + st.session_state["session_id"])
+    st.write("You are running in session: " + st.session_state["session_id"])
 
 llm: AzureChatOpenAI = None
 if "AZURE_OPENAI_API_KEY" in os.environ:
@@ -74,19 +75,17 @@ tools = [repl, download_file]
 if 'file_path' not in st.session_state:
     st.session_state['file_path'] = 'No file found'
 
-st.write("You are running in session: " + st.session_state["session_id"])
-
 promptString = """Answer the following questions as best you can. You have access to the following tools:
 
 {tools}
 
 Use the following format:
 
-Question: the original input question you must answer
+Question: the input question you must answer
 
 Thought: you should always think about what to do
 
-Action: the action to take, can be one of [{tool_names}]
+Action: the action to take, should be one of [{tool_names}]
 
 Action Input: the input to the action
 
@@ -94,21 +93,18 @@ Observation: the result of the action
 
 ... (this Thought/Action/Action Input/Observation can repeat N times)
 
-STOP if you have observed the answer to the original input question
-
 Thought: I now know the final answer
 
 Final Answer: the final answer to the original input question
-
-If there is a reference to a file use the following file in that location: {file_path}
-Your work directory for all file operations is /mnt/data/
-Only use the download file tool if the user explicitly asks to download the file itself. Otherwise describe to the user what is in the file.
 
 Begin!
 
 Question: {input}
 
 Thought:{agent_scratchpad}
+
+If there is a reference to a file use the following file in that location: {file_path}
+Your work directory for all file operations is /mnt/data/
 """
 prompt = PromptTemplate.from_template(promptString)
 
