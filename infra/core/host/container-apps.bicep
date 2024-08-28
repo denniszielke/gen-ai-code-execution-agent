@@ -9,6 +9,7 @@ param dynamcSessionsName string
 param containerAppsEnvironmentName string
 param containerRegistryName string
 param logAnalyticsWorkspaceName string
+param applicationInsightsName string
 
 module containerAppsEnvironment 'container-apps-environment.bicep' = {
   name: '${name}-container-apps-environment'
@@ -17,6 +18,7 @@ module containerAppsEnvironment 'container-apps-environment.bicep' = {
     location: location
     tags: tags
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    applicationInsightsName: applicationInsightsName
   }
 }
 

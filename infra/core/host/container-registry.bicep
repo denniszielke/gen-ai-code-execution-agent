@@ -11,7 +11,7 @@ param encryption object = {
 param networkRuleBypassOptions string = 'AzureServices'
 param publicNetworkAccess string = 'Enabled'
 param sku object = {
-  name: 'Basic'
+  name: 'Standard'
 }
 param zoneRedundancy string = 'Disabled'
 

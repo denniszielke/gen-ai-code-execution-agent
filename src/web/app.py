@@ -9,13 +9,19 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import tool
 from langchain_azure_dynamic_sessions import SessionsPythonREPLTool
 from langchain_openai import AzureChatOpenAI
-from langchain.agents import AgentExecutor, create_react_agent, load_tools
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain_community.agent_toolkits.load_tools import load_tools
+from langchain_core.messages import HumanMessage
 from langchain_community.callbacks.streamlit import (
     StreamlitCallbackHandler,
 )
 import random
 
 dotenv.load_dotenv()
+
+st.set_page_config(
+    page_title="AI agentic bot that can run dynamically generated code",
+)
 
 st.title("💬 AI code execution agent")
 st.caption("🚀 A Bot that can run dynamically generated code powered by Langchain, Azure OpenAI and Azure Container Apps")
@@ -28,6 +34,17 @@ if "session_id" not in st.session_state:
     st.session_state["session_id"] = get_session_id()
     print("started new session: " + st.session_state["session_id"])
     st.write("You are running in session: " + st.session_state["session_id"])
+
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+for message in st.session_state.chat_history:
+    if isinstance(message, HumanMessage):
+        with st.chat_message("Human"):
+            st.markdown(message.content)
+    else:
+        with st.chat_message("AI"):
+            st.markdown(message.content)
 
 llm: AzureChatOpenAI = None
 if "AZURE_OPENAI_API_KEY" in os.environ:
@@ -99,6 +116,10 @@ Final Answer: the final answer to the original input question
 
 Begin!
 
+Previous conversation history:
+
+{chat_history}
+
 Question: {input}
 
 Thought:{agent_scratchpad}
@@ -122,13 +143,18 @@ if uploaded_file is not None:
     repl.upload_file(data=buffer, remote_file_path=uploaded_file.name)
     st.session_state['file_path'] = '/mnt/data/' + uploaded_file.name
 
-if prompt := st.chat_input():
+human_query = st.chat_input()
 
-    st.chat_message("user").write(prompt)
+if human_query is not None and human_query != "":
 
+    st.session_state.chat_history.append(HumanMessage(human_query))
+
+    with st.chat_message("Human"):
+        st.markdown(human_query)
     with st.chat_message("assistant"):
         st_callback = StreamlitCallbackHandler(st.container())
         response = agent_executor.invoke(
-            {"input": prompt, "file_path": st.session_state['file_path']}, {"callbacks": [st_callback]}
+            {"input": human_query, "file_path": st.session_state['file_path'], "chat_history": st.session_state.chat_history}, {"callbacks": [st_callback]}, 
         )
-        st.write(response["output"])
+
+        ai_response = st.write(response["output"])

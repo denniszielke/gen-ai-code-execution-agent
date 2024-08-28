@@ -19,7 +19,7 @@ param logAnalyticsName string = ''
 
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
-var tags = { 'azd-env-name': environmentName, 'app': 'ai-agents' }
+var tags = { 'azd-env-name': environmentName, 'app': 'ai-agents', 'tracing': 'yes' }
 
 param completionDeploymentModelName string = 'gpt-35-turbo'
 param completionModelName string = 'gpt-35-turbo'
@@ -64,6 +64,7 @@ module containerApps './core/host/container-apps.bicep' = {
     containerRegistryName: !empty(containerRegistryName) ? containerRegistryName : '${abbrs.containerRegistryRegistries}${resourceToken}'
     location: location
     logAnalyticsWorkspaceName: monitoring.outputs.logAnalyticsWorkspaceName
+    applicationInsightsName: monitoring.outputs.applicationInsightsName
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-agents'
     openaiName: openai.outputs.openaiName
     dynamcSessionsName: dynamicSessions.outputs.name
