@@ -1,0 +1,12 @@
+openai==1.42.0
+pydantic==2.8.2
+python-dotenv==1.0.1
+azure-identity==1.17.1
+streamlit==1.37.1
+langchain==0.2.14
+langchain-core==0.2.35
+langchain-openai==0.1.22
+langchain-community==0.2.12
+python-dotenv==1.0.1
+langchain-azure-dynamic-sessions==0.1.0
+pandas==2.2.2

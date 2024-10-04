@@ -7,7 +7,13 @@ param environmentName string
 
 @minLength(1)
 @description('Primary location for all resources')
+@allowed(['westus2','swedencentral', 'northeurope', 'eastus', 'eastus2', 'northcentralus', 'germanywestcentral', 'switzerlandnorth', 'swedencentral'])
 param location string
+
+@minLength(1)
+@description('Seccion pool location')
+@allowed(['westus2','swedencentral', 'northeurope', 'eastus', 'northcentralus', 'germanywestcentral', 'switzerlandnorth', 'swedencentral'])
+param sessionPoolLocation string
 
 param resourceGroupName string = ''
 param containerAppsEnvironmentName string = ''
@@ -21,13 +27,13 @@ var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 var tags = { 'azd-env-name': environmentName, 'app': 'ai-agents', 'tracing': 'yes' }
 
-param completionDeploymentModelName string = 'gpt-35-turbo'
-param completionModelName string = 'gpt-35-turbo'
-param completionModelVersion string = '0613'
-param embeddingDeploymentModelName string = 'text-embedding-ada-002'
-param embeddingModelName string = 'text-embedding-ada-002'
+param completionDeploymentModelName string = 'gpt-4o'
+param completionModelName string = 'gpt-4o'
+param completionModelVersion string = '2024-08-06'
+param embeddingDeploymentModelName string = 'text-embedding-3-small'
+param embeddingModelName string = 'text-embedding-3-small'
 param openaiApiVersion string = '2024-02-01'
-param openaiCapacity int = 200
+param openaiCapacity int = 50
 param modelDeployments array = [
   {
     name: completionDeploymentModelName
@@ -42,7 +48,7 @@ param modelDeployments array = [
     model: {
       format: 'OpenAI'
       name: embeddingModelName
-      version: '2'
+      version: '1'
     }
   }
 ]
@@ -76,7 +82,7 @@ module dynamicSessions './core/host/dynamic-sessions.bicep' = {
   scope: resourceGroup
   params: {
     name: 'sessions'
-    location: location
+    location: sessionPoolLocation
     tags: tags
   }
 }
