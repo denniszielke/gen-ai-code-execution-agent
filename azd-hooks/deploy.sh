@@ -63,8 +63,12 @@ else
     EXISTS="true"
 fi
 
-az acr build --subscription ${AZURE_SUBSCRIPTION_ID} --registry ${AZURE_CONTAINER_REGISTRY_NAME} --image $SERVICE_NAME:latest ./src/$SERVICE_NAME
-IMAGE_NAME="${AZURE_CONTAINER_REGISTRY_NAME}.azurecr.io/$SERVICE_NAME:latest"
+IMAGE_TAG=$(date '+%m%d%H%M%S')
+
+az acr build --subscription ${AZURE_SUBSCRIPTION_ID} --registry ${AZURE_CONTAINER_REGISTRY_NAME} --image $SERVICE_NAME:$IMAGE_TAG ./src/$SERVICE_NAME
+IMAGE_NAME="${AZURE_CONTAINER_REGISTRY_NAME}.azurecr.io/$SERVICE_NAME:$IMAGE_TAG"
+
+echo "deploying image: $IMAGE_NAME"
 
 URI=$(az deployment group create -g $RESOURCE_GROUP -f ./infra/app/web.bicep \
           -p name=$SERVICE_NAME -p location=$LOCATION -p containerAppsEnvironmentName=$ENVIRONMENT_NAME \

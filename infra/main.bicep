@@ -15,6 +15,11 @@ param location string
 @allowed(['westus2','swedencentral', 'northeurope', 'eastus', 'northcentralus', 'germanywestcentral', 'switzerlandnorth', 'swedencentral'])
 param sessionPoolLocation string
 
+@minLength(1)
+@description('Model location')
+@allowed(['westus2','swedencentral', 'northeurope', 'eastus', 'eastus2', 'northcentralus', 'germanywestcentral', 'switzerlandnorth', 'swedencentral'])
+param modelLocation string
+
 param resourceGroupName string = ''
 param containerAppsEnvironmentName string = ''
 param containerRegistryName string = ''
@@ -133,3 +138,5 @@ output AZURE_OPENAI_COMPLETION_DEPLOYMENT_NAME string = completionDeploymentMode
 output AZURE_OPENAI_EMBEDDING_MODEL string = embeddingModelName
 output AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME string = embeddingDeploymentModelName
 output POOL_MANAGEMENT_ENDPOINT string = dynamicSessions.outputs.poolManagementEndpoint
+output SESSION_POOL_LOCATION string = sessionPoolLocation
+output LOCATION string = location

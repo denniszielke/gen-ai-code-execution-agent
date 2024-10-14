@@ -9,7 +9,6 @@ resource dynamicSessions 'Microsoft.App/sessionPools@2024-02-02-preview' = {
   properties: {
     poolManagementType: 'Dynamic'
       containerType: 'PythonLTS'
-      maxConcurrentSessions: 0
       scaleConfiguration: {
           maxConcurrentSessions: 100
       }
