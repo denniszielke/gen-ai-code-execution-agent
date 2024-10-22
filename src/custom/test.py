@@ -11,6 +11,7 @@ from wordcloud import WordCloud
 
 text = "square"
 
+
 x, y = np.ogrid[:300, :300]
 
 mask = (x - 150) ** 2 + (y - 150) ** 2 > 130 ** 2

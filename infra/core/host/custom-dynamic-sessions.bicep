@@ -2,12 +2,26 @@ param name string
 param imageName string
 param location string = resourceGroup().location
 param tags object = {}
+param environmentName string
+param containerRegistryName string
+param identityName string
 
-resource dynamicSessions 'Microsoft.App/sessionPools@2024-02-02-preview' = {
+resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+  name: identityName
+}
+
+resource dynamicSessions 'Microsoft.App/sessionPools@2024-08-02-preview' = {
   name: name
   location: location
   tags: tags
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${userIdentity.id}': {}
+    }
+  }
   properties: {
+    environmentId: containerAppsEnvironment.id
     poolManagementType: 'Dynamic'
       containerType: 'CustomContainer'
       scaleConfiguration: {
@@ -22,6 +36,10 @@ resource dynamicSessions 'Microsoft.App/sessionPools@2024-02-02-preview' = {
         status: 'EgressEnabled'
       }
       customContainerTemplate: {
+        registryCredentials: {
+          server: '${containerRegistryName}.azurecr.io'
+          identity: userIdentity.id
+        }
         containers: [
           {
             name: 'custom-container'
@@ -50,6 +68,14 @@ resource dynamicSessions 'Microsoft.App/sessionPools@2024-02-02-preview' = {
         }
       }
   }
+}
+
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
+  name: environmentName
+}
+
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
+  name: containerRegistryName
 }
 
 output poolManagementEndpoint string = dynamicSessions.properties.poolManagementEndpoint

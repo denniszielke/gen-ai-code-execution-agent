@@ -36,12 +36,13 @@ azd up
 
 echo "get and set the value for AZURE_ENV_NAME"
 source <(azd env get-values | grep AZURE_ENV_NAME)
+source <(azd env get-values | grep SESSION_POOL_LOCATION)
 
 echo "building and deploying the streamlit user interface"
 bash ./azd-hooks/deploy.sh web $AZURE_ENV_NAME
 
 echo "building and deploying a new custom session pool base image"
-bash ./azd-hooks/new-pool-image.sh custom $AZURE_ENV_NAME eastus
+bash ./azd-hooks/new-pool-image.sh custom $AZURE_ENV_NAME $SESSION_POOL_LOCATION
 
 ```
 

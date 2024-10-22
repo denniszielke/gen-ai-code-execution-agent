@@ -18,7 +18,7 @@ param sessionPoolLocation string
 @minLength(1)
 @description('Model location')
 @allowed(['westus2','swedencentral', 'northeurope', 'eastus', 'eastus2', 'northcentralus', 'germanywestcentral', 'switzerlandnorth', 'swedencentral'])
-param modelLocation string
+param aiResourceLocation string
 
 param resourceGroupName string = ''
 param containerAppsEnvironmentName string = ''
@@ -35,8 +35,8 @@ var tags = { 'azd-env-name': environmentName, 'app': 'ai-agents', 'tracing': 'ye
 param completionDeploymentModelName string = 'gpt-4o'
 param completionModelName string = 'gpt-4o'
 param completionModelVersion string = '2024-08-06'
-param embeddingDeploymentModelName string = 'text-embedding-3-small'
-param embeddingModelName string = 'text-embedding-3-small'
+param embeddingDeploymentModelName string = 'text-embedding-ada-002'
+param embeddingModelName string = 'text-embedding-ada-002'
 param openaiApiVersion string = '2024-02-01'
 param openaiCapacity int = 50
 param modelDeployments array = [
@@ -53,7 +53,7 @@ param modelDeployments array = [
     model: {
       format: 'OpenAI'
       name: embeddingModelName
-      version: '1'
+      version: '2'
     }
   }
 ]
@@ -97,7 +97,7 @@ module openai './ai/openai.bicep' = {
   name: 'openai'
   scope: resourceGroup
   params: {
-    location: location
+    location: aiResourceLocation
     tags: tags
     customDomainName: !empty(openaiName) ? openaiName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
     name: !empty(openaiName) ? openaiName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
@@ -131,6 +131,7 @@ output AZURE_CONTAINER_REGISTRY_NAME string = containerApps.outputs.registryName
 output OPENAI_API_TYPE string = 'azure'
 output AZURE_OPENAI_VERSION string = openaiApiVersion
 output OPENAI_API_VERSION string = openaiApiVersion
+output OPENAI_LOCATION string = aiResourceLocation
 output AZURE_OPENAI_API_KEY string = openai.outputs.openaiKey
 output AZURE_OPENAI_ENDPOINT string = openai.outputs.openaiEndpoint
 output AZURE_OPENAI_COMPLETION_MODEL string = completionModelName
