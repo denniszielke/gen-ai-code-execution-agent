@@ -70,49 +70,59 @@ else:
 
 
 pool_management_endpoint = os.getenv("POOL_MANAGEMENT_ENDPOINT")
-repl = SessionsPythonREPLTool(pool_management_endpoint=pool_management_endpoint, session_id=st.session_state["session_id"])
+execute_code_session = SessionsPythonREPLTool(pool_management_endpoint=pool_management_endpoint, session_id=st.session_state["session_id"])
 
 @tool
-def download_file(filepath: str) -> str:
-    "Download a file from the given path to the user and return the file path"
+def do_nothing() -> str:
+    "Do nothing"
+    return "Done" 
+
+@tool
+def send_file(filepath: str) -> str:
+    "Send the file from the given path to the user and return the file path"
     filepath = filepath.replace("\n", "")
     filepath = filepath.replace("\"", "")
     filepath = filepath.replace(" ", "")
     filepath = filepath.replace(" ", "")
     filename = os.path.basename(filepath)
-    print("Downloading file:-", filename + "-")
-    f = repl.download_file(remote_file_path=filename)
+    print("Sending file:-", filename + "-")
+    f = execute_code_session.download_file(remote_file_path=filename)
     
-    st.download_button("Download file", f, file_name=filename)
+    st.download_button("Download file", f, file_name=filename, key=filename)
     return "Sending file: " + filename 
     
 
-tools = [repl, download_file]
+tools = [execute_code_session, do_nothing, send_file]
 
 if 'file_path' not in st.session_state:
     st.session_state['file_path'] = 'No file found'
 
-promptString = """Answer the following questions as best you can. You have access to the following tools:
+promptString = """You are a highly intelligent assistant capable of understanding and executing specific actions based on user requests. Your goal is to assist the user as efficiently and accurately as possible without deviating from their instructions.
+
+Assistant has access to the following tools:
 
 {tools}
 
-Use the following format:
+Please follow these instructions carefully:
 
-Question: the input question you must answer
+1. If you need to perform an action to answer the user's question, use the following format:
+'''
+Thought: Do I need to use a tool? Yes
+Action: [Specify the action],  should be one of [{tool_names}]
+Action Input: [Provide the necessary input for the action]
+Observation: [Describe the outcome of the action]
+'''
 
-Thought: you should always think about what to do
+2. If you can answer the user's question without performing any additional actions, use the following format:
+'''
+Thought: Do I need to use a tool? No
+Final Answer: [Provide your answer here]
+'''
 
-Action: the action to take, should be one of [{tool_names}]
+Your responses should be concise and directly address the user's query. Avoid generating new questions or unnecessary information.
 
-Action Input: the input to the action
-
-Observation: the result of the action
-
-... (this Thought/Action/Action Input/Observation can repeat N times)
-
-Thought: I now know the final answer
-
-Final Answer: the final answer to the original input question
+Remember, you do not always need to use tools. Do not provide information the user did not ask for.
+End of instructions. Please proceed with answering the user's question following the guidelines provided above.
 
 Begin!
 
@@ -120,10 +130,11 @@ Previous conversation history:
 
 {chat_history}
 
-Question: {input}
+New input: {input}
 
-Thought:{agent_scratchpad}
+{agent_scratchpad}
 
+Only send the file if the user explicitly asks fro a file to be sent.
 If there is a reference to a file use the following file in that location: {file_path}
 Your work directory for all file operations is /mnt/data/
 """
@@ -140,7 +151,7 @@ if uploaded_file is not None:
     buffer = StringIO(uploaded_file.getvalue().decode("utf-8"))
     st.write("Uploaded file: ", uploaded_file.name)
 
-    repl.upload_file(data=buffer, remote_file_path=uploaded_file.name)
+    execute_code_session.upload_file(data=buffer, remote_file_path=uploaded_file.name)
     st.session_state['file_path'] = '/mnt/data/' + uploaded_file.name
 
 human_query = st.chat_input()

@@ -62,7 +62,7 @@ resource app 'Microsoft.App/containerApps@2023-04-01-preview' = {
             }
             {
               name: 'AZURE_OPENAI_COMPLETION_DEPLOYMENT_NAME'
-              value: 'gpt-35-turbo'
+              value: 'gpt-4o'
             }
             {
               name: 'AZURE_OPENAI_VERSION'
